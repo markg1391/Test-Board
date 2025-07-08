@@ -5,12 +5,12 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.Blinkintest;
+import frc.robot.subsystems.Krakentest;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -20,15 +20,17 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final Blinkintest leds = new Blinkintest();
+  private final Krakentest krakentest = new Krakentest();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController Controller =
+      new CommandXboxController(0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
+    configureDefaultCommands();
     configureBindings();
   }
 
@@ -43,21 +45,20 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    Controller.b().whileTrue(new InstantCommand(() -> leds.setColor(0.93)));
+    Controller.a().whileTrue(new InstantCommand(() -> leds.setColor(-0.41)));
+    Controller.x().whileTrue(new InstantCommand(() -> leds.setColor(-0.87)));
+    Controller.y().whileTrue(new InstantCommand(() -> leds.setColor(-0.11)));
+    
   }
-
+  private void configureDefaultCommands() {
+    krakentest.setDefaultCommand(new InstantCommand(() -> krakentest.runMotor(Controller.getRightTriggerAxis()), krakentest));
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
-  }
+  
+  
 }
